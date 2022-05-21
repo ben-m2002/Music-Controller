@@ -7,11 +7,11 @@ import {Link, useParams, useNavigate} from "react-router-dom"
 
 function showButton(setShowSettings) {
     return (
-        <Grid item xs = {12} align = "center">    
+    <Grid item xs = {12} align = "center">    
         <Button color = "secondary" variant = "contained" onClick = {() => setShowSettings(true)}>
             Settings
         </Button> 
-    </Grid>)
+     </Grid>)
 }
 
 function showSettingsPage(votesToSkip, guestCanPause,roomCode,setShowSettings){

@@ -12,13 +12,73 @@ CreateRoomPage.defaultProps = {
     updateCallback : () => {}
 }
 
+function renderCreateButtons(guestCanPause,votesToSkip){
+    let navigate = useNavigate()
+    return ( // gotta use a container if returning more than one grid item
+        <Grid container spacing = {2}> 
+            <Grid item xs = {12} align = "center">
+               <Button 
+               color = "primary" 
+               variant = "contained"
+               onClick = {() => {
+                  const requestOptions = {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({
+                        votes_to_skip: votesToSkip,
+                        guest_can_pause: guestCanPause,
+                    }),
+                    }
+                    return fetch("/api/create-room", requestOptions)
+                    .then((response) => response.json())
+                    .then((data) => navigate("/room/" + data.code));
+               }}
+               >
+                   Create A Room
+               </Button>
+           </Grid>
+           <Grid item xs = {12} align = "center">
+               <Button color = "secondary" variant = "contained" to = "/" component = {Link}>
+                   Back
+               </Button>
+           </Grid>
+        </Grid>
+    )
+}
+
+function renderUpdateButton(){
+    return (
+    <Grid item xs = {12} align = "center">
+        <Button 
+            color = "primary" 
+            variant = "contained"
+            onClick = {() => {
+            const requestOptions = {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({
+                    votes_to_skip: votesToSkip,
+                    guest_can_pause: guestCanPause,
+                }),
+                }
+                return fetch("/api/create-room", requestOptions)
+                .then((response) => response.json())
+                .then((data) => navigate("/room/" + data.code));
+            }}
+            >
+               Update Room
+        </Button>
+    </Grid>
+    );
+}
+
 export default function CreateRoomPage(props){
     
     var minVotes = 2
     const [guestCanPause,setGuestCanPause] = useState(props.guestCanPause)
     const [votesToSkip, setVotesToSkip] = useState(props.votesToSkip)
 
-    let navigate = useNavigate()
+
     const title = props.update ? "Update Room" : "Create a Room"
 
     return (
@@ -76,32 +136,7 @@ export default function CreateRoomPage(props){
                     </FormHelperText>
                 </FormControl>
            </Grid>
-           <Grid item xs = {12} align = "center">
-               <Button 
-               color = "primary" 
-               variant = "contained"
-               onClick = {() => {
-                  const requestOptions = {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify({
-                        votes_to_skip: votesToSkip,
-                        guest_can_pause: guestCanPause,
-                    }),
-                    }
-                    return fetch("/api/create-room", requestOptions)
-                    .then((response) => response.json())
-                    .then((data) => navigate("/room/" + data.code));
-               }}
-               >
-                   Create A Room
-               </Button>
-           </Grid>
-           <Grid item xs = {12} align = "center">
-               <Button color = "secondary" variant = "contained" to = "/" component = {Link}>
-                   Back
-               </Button>
-           </Grid>
+           {props.update ? renderUpdateButton() : renderCreateButtons(guestCanPause,votesToSkip)}
        </Grid>
     );
 }
