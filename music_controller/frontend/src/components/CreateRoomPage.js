@@ -3,6 +3,8 @@ import { useState } from 'react'
 import {Button, Grid, Typography, TextField, FormHelperText, FormControl, Radio, RadioGroup, FormControlLabel} from "@material-ui/core"
 import {Link, useNavigate} from "react-router-dom"
 import {Collapse} from "@material-ui/core"
+import Alert from '@mui/material/Alert';
+
 
 CreateRoomPage.defaultProps = {
     votesToSkip: 2,
@@ -94,12 +96,13 @@ export default function CreateRoomPage(props){
        <Grid container spacing = {1}>
            <Grid item xs = {12} align = "center">
                 <Collapse in = {errorMessage != "" || successMessage != ""}>
-                   {
-                      errorMessage
-                   }
-                   {
-                        successMessage
-                   }
+                  {errorMessage != "" ? 
+                    <Alert serverity = "error" onClose = {() => setErrorMessage("")}>
+                        {errorMessage}
+                    </Alert> : 
+                    <Alert serverity = "success" onClose = {() => setSuccessMessage("")}>
+                       {successMessage}
+                    </Alert>}
                 </Collapse>
            </Grid>
            <Grid item xs = {12} align = "center">
