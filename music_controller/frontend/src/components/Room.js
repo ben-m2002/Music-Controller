@@ -18,8 +18,12 @@ function showSettingsPage(votesToSkip, guestCanPause,roomCode,setShowSettings){
     return (
         <Grid container spacing = {2}>
             <Grid item xs = {12} align = "center">
-                <CreateRoomPage update = {true} votesToSkip = {votesToSkip} guestCanPause = {guestCanPause}
-                roomCode = {roomCode} updateCallback = {()=>{}}
+                <CreateRoomPage 
+                update = {true} 
+                votesToSkip = {votesToSkip} 
+                guestCanPause = {guestCanPause}
+                roomCode = {roomCode} 
+                updateCallback = {()=>{}}
                 />
             </Grid>
             <Grid item xs = {12} align = "center">
@@ -46,7 +50,7 @@ export default function Room (props){
     fetch('/api/get-room' + '?code=' + roomCode).then((response) => {
         if (!response.ok){
             props.leaveRoomCallBack()
-            return navigate.push("/")
+            return navigate("/")
         }
         return response.json()
     })

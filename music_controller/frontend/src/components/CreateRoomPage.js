@@ -3,20 +3,29 @@ import { useState } from 'react'
 import {Button, Grid, Typography, TextField, FormHelperText, FormControl, Radio, RadioGroup, FormControlLabel} from "@material-ui/core"
 import {Link, useNavigate} from "react-router-dom"
 
+
+CreateRoomPage.defaultProps = {
+    votesToSkip: 2,
+    guestCanPause : true,
+    update: false,
+    roomCode : null,
+    updateCallback : () => {}
+}
+
 export default function CreateRoomPage(props){
-
+    
     var minVotes = 2
-    const [guestCanPause,setGuestCanPause] = useState(true)
-    const [votesToSkip, setVotesToSkip] = useState(minVotes)
-
+    const [guestCanPause,setGuestCanPause] = useState(props.guestCanPause)
+    const [votesToSkip, setVotesToSkip] = useState(props.votesToSkip)
 
     let navigate = useNavigate()
+    const title = props.update ? "Update Room" : "Create a Room"
 
     return (
        <Grid container spacing = {1}>
            <Grid item xs = {12} align = "center">
                 <Typography component = "h4" variant = "h4">
-                    Create A Room
+                    {title}
                 </Typography>
            </Grid>
            <Grid item xs = {12} align = "center">
@@ -53,6 +62,7 @@ export default function CreateRoomPage(props){
                     required = {true} 
                     type = "number"
                     onChange = {(e) => setVotesToSkip(e.target.value)} 
+                    defaultValue = {props.votesToSkip}
                     inputProps = {
                         {
                             min:1,
@@ -95,3 +105,4 @@ export default function CreateRoomPage(props){
        </Grid>
     );
 }
+
