@@ -23,7 +23,7 @@ function showSettingsPage(votesToSkip, guestCanPause,roomCode,setShowSettings){
                 votesToSkip = {votesToSkip} 
                 guestCanPause = {guestCanPause}
                 roomCode = {roomCode} 
-                updateCallback = {()=>{}}
+                updateCallback = {()=> getRoomDetails}
                 />
             </Grid>
             <Grid item xs = {12} align = "center">
@@ -38,15 +38,7 @@ function showSettingsPage(votesToSkip, guestCanPause,roomCode,setShowSettings){
     )
 }
 
-export default function Room (props){
-    const [votesToSkip,setVotesToSkip] = useState(2)
-    const [guestCanPause,setGuestCanPause] = useState(false)
-    const [isHost, setIsHost] = useState(false)
-    const [showSettings,setShowSettings] = useState(false)
-
-    let roomCode = useParams().roomCode;
-    let navigate = useNavigate();
-
+function getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost){
     fetch('/api/get-room' + '?code=' + roomCode).then((response) => {
         if (!response.ok){
             props.leaveRoomCallBack()
@@ -59,7 +51,19 @@ export default function Room (props){
         setGuestCanPause(data.guest_can_pause)
         setIsHost(data.is_host)
     })
+}
 
+export default function Room (props){
+    const [votesToSkip,setVotesToSkip] = useState(2)
+    const [guestCanPause,setGuestCanPause] = useState(false)
+    const [isHost, setIsHost] = useState(false)
+    const [showSettings,setShowSettings] = useState(false)
+
+    let roomCode = useParams().roomCode;
+    let navigate = useNavigate();
+
+    getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost)
+    
     if (showSettings){
         return showSettingsPage(votesToSkip,guestCanPause,roomCode,setShowSettings)
     }
