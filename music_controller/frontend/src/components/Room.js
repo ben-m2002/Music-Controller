@@ -107,7 +107,6 @@ export default function Room (props){
             {isHost ? showButton(setShowSettings) : null}
         </Grid>
 
-
         /*
         <div>
             <h1>
