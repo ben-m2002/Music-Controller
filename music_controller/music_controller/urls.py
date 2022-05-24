@@ -20,4 +20,5 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('api/',include('api.urls')), # you can attach more urls.py routes to this one
     path('',include('frontend.urls')),
+    path('spotify/',include('spotify.urls'))
 ]
