@@ -24,7 +24,12 @@ def spotify_callback(request, format = None):
     error = request.GET.get('error')
 
     if (error == "access_denied"):
-        # just go back to the frontend page because we didnt get access
+        headers = {"Content-Type": "application/json"}
+        # just go back to the frontend page because we didnt get access]
+        response = post('http://127.0.0.1:8000/api/leave-room',
+        headers = headers,
+        ).json()
+        print(response.get('message'))
         return redirect("frontend:")
     
     
