@@ -24,8 +24,8 @@ def spotify_callback(request, format = None):
     error = request.GET.get('error')
 
     if (error == "access_denied"):
-        # just go back to the frontend page because we didnt get access
-        return redirect("frontend:")
+        # just go back to the frontend page because we didnt get access]
+        return redirect("api:leave-room")
     
     
     response = post("https://accounts.spotify.com/api/token", data = {
