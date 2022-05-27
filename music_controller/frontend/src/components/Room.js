@@ -38,7 +38,23 @@ function showSettingsPage(votesToSkip, guestCanPause,roomCode,setShowSettings){
     )
 }
 
-function getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost){
+function authenticateSpotify(setisAuthenticated)
+{
+    fetch('/spotify/is-authenticated').
+    then((response) => response.json()). then((data) => {
+        setisAuthenticated(data.status)
+        //authenticate them if they are not already authenticated
+        if (!data.status){
+            fetch('/spotify/get-auth-url').then((response) => response.json())
+            .then((data) => {
+                window.location.replace(data.url)
+            })
+        }
+    })
+}
+
+
+function getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost,setisAuthenticated){
     fetch('/api/get-room' + '?code=' + roomCode).then((response) => {
         if (!response.ok){
             props.leaveRoomCallBack()
@@ -50,6 +66,9 @@ function getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost
         setVotesToSkip(data.votes_to_skip)
         setGuestCanPause(data.guest_can_pause)
         setIsHost(data.is_host)
+        if (data.is_host == true){
+            authenticateSpotify(setisAuthenticated)
+        }
     })
 }
 
@@ -58,11 +77,12 @@ export default function Room (props){
     const [guestCanPause,setGuestCanPause] = useState(false)
     const [isHost, setIsHost] = useState(false)
     const [showSettings,setShowSettings] = useState(false)
+    const [isAuthenticated,setisAuthenticated] = useState(false)
 
     let roomCode = useParams().roomCode;
     let navigate = useNavigate();
 
-    getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost)
+    getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost,setisAuthenticated)
     
     if (showSettings){
         return showSettingsPage(votesToSkip,guestCanPause,roomCode,setShowSettings)

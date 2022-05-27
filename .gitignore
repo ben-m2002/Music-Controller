@@ -1,3 +1,4 @@
 **/node_modules
 music_controller/music_controller/settings.py
 music_controller/spotify/credentials.py
+music_controller/db.sqlite3
