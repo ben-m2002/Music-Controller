@@ -2,3 +2,5 @@
 music_controller/music_controller/settings.py
 music_controller/spotify/credentials.py
 music_controller/db.sqlite3
+music_controller/api/admin.py
+music_controller/spotify/admin.py

@@ -1,7 +1,12 @@
-import React, {Component} from 'react'
+import React, {Component, useEffect} from 'react'
 import { useState} from 'react'
 import CreateRoomPage from './CreateRoomPage'
-import {Button, Grid, Typography, ButtonGroup, TextField, FormHelperText, FormControl, Radio, RadioGroup, FormControlLabel} from "@material-ui/core"
+import Card from '@mui/material/Card';
+import CardHeader from '@mui/material/CardHeader';
+import CardMedia from '@mui/material/CardMedia';
+import CardContent from '@mui/material/CardContent';
+import CardActions from '@mui/material/CardActions';
+import {Button, Grid, Typography, ButtonGroup, TextField, FormHelperText, FormControl, Radio, RadioGroup, FormControlLabel, Box} from "@material-ui/core"
 import {Link, useParams, useNavigate} from "react-router-dom"
 
 
@@ -38,7 +43,7 @@ function showSettingsPage(votesToSkip, guestCanPause,roomCode,setShowSettings){
     )
 }
 
-function authenticateSpotify(setisAuthenticated)
+function authenticateSpotify(setisAuthenticated,setSong)
 {
     fetch('/spotify/is-authenticated').
     then((response) => response.json()). then((data) => {
@@ -54,7 +59,19 @@ function authenticateSpotify(setisAuthenticated)
 }
 
 
-function getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost,setisAuthenticated){
+function getCurrentSong(setSong){
+    fetch('/spotify/current-song').then((response)=>{
+        if (!response.ok){
+            return {}
+        }else{
+            return response.json()
+        }
+    }).then((data)=>{
+        setSong(data)
+    })
+}
+
+function getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost,setisAuthenticated,setSong){
     fetch('/api/get-room' + '?code=' + roomCode).then((response) => {
         if (!response.ok){
             props.leaveRoomCallBack()
@@ -67,7 +84,7 @@ function getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost
         setGuestCanPause(data.guest_can_pause)
         setIsHost(data.is_host)
         if (data.is_host == true){
-            authenticateSpotify(setisAuthenticated)
+            authenticateSpotify(setisAuthenticated,setSong)
         }
     })
 }
@@ -78,15 +95,26 @@ export default function Room (props){
     const [isHost, setIsHost] = useState(false)
     const [showSettings,setShowSettings] = useState(false)
     const [isAuthenticated,setisAuthenticated] = useState(false)
+    const [startSongRequest,setStartSongRequest] = useState(true) // this is used to fix the looping error
+    const [song,setSong] = useState({})
 
     let roomCode = useParams().roomCode;
     let navigate = useNavigate();
 
-    getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost,setisAuthenticated)
+    getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost,setisAuthenticated,setSong)
     
+    if (startSongRequest == true){
+        getCurrentSong(setSong)
+        setStartSongRequest(false)
+    }
+
     if (showSettings){
         return showSettingsPage(votesToSkip,guestCanPause,roomCode,setShowSettings)
-    }
+    } 
+
+    useEffect(() => { // This didComponentMount except for functional components
+        ""
+    } , [])
 
     return (
         <Grid container spacing = {1}>
@@ -96,19 +124,19 @@ export default function Room (props){
                 </Typography>
             </Grid>
             <Grid item xs = {12} align = "center">
-                <Typography variant = "h6" component = "h6">
-                    Votes to skip is : {votesToSkip}
+                <Typography variant = "h3" component = "h3">
+                    {song.title}
                 </Typography>
             </Grid>
             <Grid item xs = {12} align = "center">
-                <Typography variant = "h6" component = "h6">
-                    guest Can Pause is : {guestCanPause.toString()}
-                </Typography>
-            </Grid>
-            <Grid item xs = {12} align = "center">
-                <Typography variant = "h6" component = "h6">
-                    Host : {isHost.toString()}
-                </Typography>
+               <Card sx = {{maxWidth : 545}}>
+               <CardMedia
+                    component = "img"
+                    height="194"
+                    image = {song.image_url}
+                    alt={song.title}
+                />    
+               </Card>
             </Grid>
             <Grid item xs = {12} align = "center">
                 <Button color = "primary" variant = "contained" onClick = {() => {
