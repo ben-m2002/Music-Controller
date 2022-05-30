@@ -1,13 +1,9 @@
 import React, {Component, useEffect} from 'react'
 import { useState} from 'react'
 import CreateRoomPage from './CreateRoomPage'
-import Card from '@mui/material/Card';
-import CardHeader from '@mui/material/CardHeader';
-import CardMedia from '@mui/material/CardMedia';
-import CardContent from '@mui/material/CardContent';
-import CardActions from '@mui/material/CardActions';
 import {Button, Grid, Typography, ButtonGroup, TextField, FormHelperText, FormControl, Radio, RadioGroup, FormControlLabel, Box} from "@material-ui/core"
 import {Link, useParams, useNavigate} from "react-router-dom"
+import MediaPlayer from "./MediaPlayer"
 
 function showButton(setShowSettings) {
     return (
@@ -122,22 +118,7 @@ export default function Room (props){
                 </Typography>
             </Grid>
             <Grid item xs = {12} align = "center">
-               <Card sx = {{Width : 545, Hieght : 545 , maxWidth : 545, maxHeight : 545}}>
-               <CardMedia
-                    component = "img"
-                    height="300"
-                    image = {song.image_url}
-                    alt={song.title}
-                />  
-                <CardContent>
-                     <Typography gutterBottom variant="h5" component="div">
-                        {song.artist}
-                    </Typography>
-                    <Typography variant="body2">
-                        {song.title}
-                    </Typography>
-             </CardContent>  
-               </Card>
+                <MediaPlayer song = {song}/>
             </Grid>
             <Grid item xs = {12} align = "center">
                 <Button color = "primary" variant = "contained" onClick = {() => {

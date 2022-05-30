@@ -90,12 +90,13 @@ class CurrentSong(APIView):
                 return Response({}, status = status.HTTP_204_NO_CONTENT)
             
             item = response.get('item')
-            duration = item.get('duration')
+            duration = item.get('duration_ms')
             progress = response.get("progress_ms")
             song_cover = item.get("album").get('images')[0].get("url")
             song_name = item.get('name')
             song_id = item.get('id')
             artist_string = ""
+            is_playing = response.get("is_playing")
 
             for i, artist in enumerate(item.get('artists')):
                 if i > 0:
@@ -111,7 +112,7 @@ class CurrentSong(APIView):
                 'duration' : duration,
                 'time' : progress,
                 'image_url': song_cover,
-                'is_playing' : item.get("is_playing"),
+                'is_playing' : is_playing,
                 'votes' : 0,
                 'id' : song_id,
             }    
