@@ -9,7 +9,6 @@ import CardActions from '@mui/material/CardActions';
 import {Button, Grid, Typography, ButtonGroup, TextField, FormHelperText, FormControl, Radio, RadioGroup, FormControlLabel, Box} from "@material-ui/core"
 import {Link, useParams, useNavigate} from "react-router-dom"
 
-
 function showButton(setShowSettings) {
     return (
     <Grid item xs = {12} align = "center">    
@@ -97,45 +96,47 @@ export default function Room (props){
     const [isAuthenticated,setisAuthenticated] = useState(false)
     const [startSongRequest,setStartSongRequest] = useState(true) // this is used to fix the looping error
     const [song,setSong] = useState({})
-
     let roomCode = useParams().roomCode;
     let navigate = useNavigate();
 
+    useEffect(() => { // didComponentMounthook, fires when component is rendered on the screen
+        let interval = setInterval( () => {
+            getCurrentSong(setSong)
+        }, 1000);
+
+        return () => clearInterval(interval) // this only runs when the component is about to unmount
+    },[])
+
     getRoomDetails(props,roomCode,setVotesToSkip,setGuestCanPause,setIsHost,setisAuthenticated,setSong)
-    
-    if (startSongRequest == true){
-        getCurrentSong(setSong)
-        setStartSongRequest(false)
-    }
 
     if (showSettings){
         return showSettingsPage(votesToSkip,guestCanPause,roomCode,setShowSettings)
     } 
 
-    useEffect(() => { // This didComponentMount except for functional components
-        ""
-    } , [])
 
     return (
         <Grid container spacing = {1}>
-            <Grid item xs = {12} align = "center">
+            <Grid item xs = {12} align = "center" >
                 <Typography variant = "h3" component = "h3">
                     Room Code is : {roomCode}
                 </Typography>
             </Grid>
             <Grid item xs = {12} align = "center">
-                <Typography variant = "h3" component = "h3">
-                    {song.title}
-                </Typography>
-            </Grid>
-            <Grid item xs = {12} align = "center">
-               <Card sx = {{maxWidth : 545}}>
+               <Card sx = {{Width : 545, Hieght : 545 , maxWidth : 545, maxHeight : 545}}>
                <CardMedia
                     component = "img"
-                    height="194"
+                    height="300"
                     image = {song.image_url}
                     alt={song.title}
-                />    
+                />  
+                <CardContent>
+                     <Typography gutterBottom variant="h5" component="div">
+                        {song.artist}
+                    </Typography>
+                    <Typography variant="body2">
+                        {song.title}
+                    </Typography>
+             </CardContent>  
                </Card>
             </Grid>
             <Grid item xs = {12} align = "center">
