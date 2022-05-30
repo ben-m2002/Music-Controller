@@ -41,7 +41,18 @@ export default function MediaPlayer(props){
                                 <IconButton>
                                     <SkipPreviousIcon/>
                                 </IconButton>
-                                <IconButton>
+                                <IconButton onClick = {() => {
+                                    if (props.song.is_playing){
+                                        fetch("/spotify/pause-song").then((response)=>{
+                                            return response.ok
+                                        })
+                                    }
+                                    else{
+                                        fetch("/spotify/resume-song").then((response)=>{
+                                            return response.ok
+                                        })
+                                    }   
+                                }}>
                                     {props.song.is_playing ? <PauseIcon/> : <PlayArrowIcon/> }
                                 </IconButton>
                                 <IconButton>

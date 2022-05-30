@@ -67,17 +67,24 @@ def RemoveAllSpotifyTokens ():
 
 class IsAuthenticated(APIView):
     def get(self,request,format =  None):
-        if not request.session.exists(request.session.session_key):
-            request.session.create()
+        if not self.request.session.exists(request.session.session_key):
+            self.request.session.create()
         is_authenticated = is_spotify_authenticated(request.session.session_key)
         return Response({'status': is_authenticated},status.HTTP_200_OK)
 
+def UserInRoom(session):
+    roomCode = session.get('room_code')
+    print(roomCode)
+    roomQuery = Room.objects.filter(code = roomCode)
+    if roomQuery.exists():
+        return True, roomQuery[0]
+    return False
 
 class CurrentSong(APIView):
     def get(self, request,format = None):
         # always check and make a session key just in cause
-        if not request.session.exists(request.session.session_key):
-            request.session.create()
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
         room_code = self.request.session.get("room_code")
         roomQuery = Room.objects.filter(code=room_code)
         if roomQuery.exists():
@@ -85,10 +92,10 @@ class CurrentSong(APIView):
             host = room.host
             endpoint = "player/currently-playing"
             response = execute_spotify_api_request(host, endpoint)
-
-            if 'error' in response or 'item' not in response:
-                return Response({}, status = status.HTTP_204_NO_CONTENT)
             
+            if 'error' in response or 'item' not in response:
+                return Response({}, status = status.HTTP_400_BAD_REQUEST)
+
             item = response.get('item')
             duration = item.get('duration_ms')
             progress = response.get("progress_ms")
@@ -120,3 +127,49 @@ class CurrentSong(APIView):
             return Response(song, status = status.HTTP_200_OK)
         return Response({"message":"Not in a room"}, status = status.HTTP_404_NOT_FOUND)
 
+class PauseCurrentSong(APIView):
+    def get (self,request,format =  None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        endpoint = "player/pause"
+        value, room = UserInRoom(self.request.session)
+        if value:
+            host = room.host
+            guest_can_pause = room.guest_can_pause
+            if not guest_can_pause: 
+                if request.session.session_key != host: # check to see if user is the host
+                    return Response({"message":"Not the host"}, status = status.HTTP_404_NOT_FOUND)
+            response = execute_spotify_api_request(host, endpoint,False,True,False).json()
+
+            if ('error' in response):
+                Response({'message' : 'Not in a room'}, status = status.HTTP_404_NOT_FOUND)
+
+            return Response(response,status = status.HTTP_200_OK)
+        return Response({'message' : 'Not in a room'}, status = status.HTTP_400_BAD_REQUEST)
+
+class ResumeCurrentSong(APIView):
+    def get (self,request,format =  None):
+        if not self.request.session.exists(self.request.session.session_key):
+            self.request.session.create()
+        endpoint = "player/play"
+        value, room = UserInRoom(self.request.session)
+        if value:
+            host = room.host
+            guest_can_pause = room.guest_can_pause
+            if not guest_can_pause: 
+                if request.session.session_key != host: # check to see if user is the host
+                    return Response({"message":"Room set to only host can pause"}, status = status.HTTP_404_NOT_FOUND)
+            
+            tokens = get_user_token(host)
+            if tokens == None:
+                return {'Error' : 'No Tokens'}
+            header = {'Content-Type' : 'application/json', 'Authorization' : "Bearer " + tokens.access_token}
+            response = put("https://api.spotify.com/v1/me/" + endpoint,headers = header, json = {
+                "position_ms": 0
+            }).json()
+
+            if ('error' in response):
+                Response({'message' : 'Not in a room'}, status = status.HTTP_404_NOT_FOUND)
+
+            return Response(response,status = status.HTTP_200_OK)
+        return Response({"message":"Not in a room"}, status = status.HTTP_404_NOT_FOUND)
