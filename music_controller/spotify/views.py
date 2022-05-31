@@ -1,4 +1,5 @@
 from django.shortcuts import render, redirect
+import requests
 from .credentials import REDIRECT_URI, CLIENT_SECRET, CLIENT_ID
 from rest_framework.views import APIView
 from requests import Request,post
@@ -94,7 +95,7 @@ class CurrentSong(APIView):
             response = execute_spotify_api_request(host, endpoint)
             
             if 'error' in response or 'item' not in response:
-                return Response({}, status = status.HTTP_400_BAD_REQUEST)
+                return Response({"message" : "No current song"}, status = status.HTTP_400_BAD_REQUEST)
 
             item = response.get('item')
             duration = item.get('duration_ms')
@@ -111,8 +112,6 @@ class CurrentSong(APIView):
                 name = artist.get("name")
                 artist_string += name
 
-            print(artist_string)
-
             song = {
                 'title' : song_name,
                 'artist' : artist_string,
@@ -128,7 +127,7 @@ class CurrentSong(APIView):
         return Response({"message":"Not in a room"}, status = status.HTTP_404_NOT_FOUND)
 
 class PauseCurrentSong(APIView):
-    def get (self,request,format =  None):
+    def put (self,request,format =  None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
         endpoint = "player/pause"
@@ -139,16 +138,16 @@ class PauseCurrentSong(APIView):
             if not guest_can_pause: 
                 if request.session.session_key != host: # check to see if user is the host
                     return Response({"message":"Not the host"}, status = status.HTTP_404_NOT_FOUND)
-            response = execute_spotify_api_request(host, endpoint,False,True,False).json()
+            response = execute_spotify_api_request(host, endpoint,False,True,False)
 
             if ('error' in response):
                 Response({'message' : 'Not in a room'}, status = status.HTTP_404_NOT_FOUND)
 
-            return Response(response,status = status.HTTP_200_OK)
+            return Response({'message' : 'Valid'},status = status.HTTP_200_OK)
         return Response({'message' : 'Not in a room'}, status = status.HTTP_400_BAD_REQUEST)
 
 class ResumeCurrentSong(APIView):
-    def get (self,request,format =  None):
+    def put (self,request,format =  None):
         if not self.request.session.exists(self.request.session.session_key):
             self.request.session.create()
         endpoint = "player/play"
@@ -158,18 +157,15 @@ class ResumeCurrentSong(APIView):
             guest_can_pause = room.guest_can_pause
             if not guest_can_pause: 
                 if request.session.session_key != host: # check to see if user is the host
-                    return Response({"message":"Room set to only host can pause"}, status = status.HTTP_404_NOT_FOUND)
-            
+                    return Response({"message":"Room set to only host can play"}, status = status.HTTP_404_NOT_FOUND)    
             tokens = get_user_token(host)
             if tokens == None:
                 return {'Error' : 'No Tokens'}
             header = {'Content-Type' : 'application/json', 'Authorization' : "Bearer " + tokens.access_token}
-            response = put("https://api.spotify.com/v1/me/" + endpoint,headers = header, json = {
-                "position_ms": 0
-            }).json()
+            response = requests.put("https://api.spotify.com/v1/me/" + endpoint,headers = header).json()
 
             if ('error' in response):
                 Response({'message' : 'Not in a room'}, status = status.HTTP_404_NOT_FOUND)
 
-            return Response(response,status = status.HTTP_200_OK)
+            return Response({'message' : 'Valid'},status = status.HTTP_200_OK)
         return Response({"message":"Not in a room"}, status = status.HTTP_404_NOT_FOUND)

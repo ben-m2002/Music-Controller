@@ -16,6 +16,19 @@ import SkipPreviousIcon from '@mui/icons-material/SkipPrevious';
 import {Link, useParams, useNavigate} from "react-router-dom"
 
 
+MediaPlayer.defaultProps = {
+    song : {
+        'title' : "None",
+        'artist' : "No artist",
+        'duration' : 0,
+        'time' : 0,
+        'image_url': "",
+        'is_playing' : false,
+        'votes' : 0,
+        'id' : "",
+    },
+}
+
 export default function MediaPlayer(props){
 
     return (
@@ -43,12 +56,20 @@ export default function MediaPlayer(props){
                                 </IconButton>
                                 <IconButton onClick = {() => {
                                     if (props.song.is_playing){
-                                        fetch("/spotify/pause-song").then((response)=>{
+                                        const requestOptions = {
+                                            method : "PUT",
+                                            headers : {"Content-Type":"application/json"},
+                                        }
+                                        fetch("/spotify/pause-song",requestOptions).then((response)=>{
                                             return response.ok
                                         })
                                     }
                                     else{
-                                        fetch("/spotify/resume-song").then((response)=>{
+                                        const requestOptions = {
+                                            method : "PUT",
+                                            headers : {"Content-Type":"application/json"}
+                                        }
+                                        fetch("/spotify/resume-song", requestOptions).then((response)=>{
                                             return response.ok
                                         })
                                     }   

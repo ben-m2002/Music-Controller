@@ -15,12 +15,10 @@ def get_user_token(session_id):
         None
 
 
-def update_or_create_user_tokens(session_id, access_token, token_type, expires_in, refresh_token,refresh_token2 = None):
+def update_or_create_user_tokens(session_id, access_token, token_type, expires_in, refresh_token):
     tokens = get_user_token(session_id)
     expires_in = timezone.now() + timedelta(seconds=expires_in)
     if tokens:
-        if refresh_token2 != None: #fix the refresh token bug, sometimes we dont get a new refresh token
-            refresh_token = refresh_token2
         tokens.access_token = access_token
         tokens.refresh_token = refresh_token
         tokens.expires_in = expires_in
@@ -61,7 +59,6 @@ def refresh_spotify_token(session_id):
     access_token = response.get('access_token')
     token_type = response.get('token_type')
     expires_in = response.get('expires_in')
-    refresh_token2 = response.get('refresh_token')
 
     update_or_create_user_tokens(
         session_id, 
@@ -69,7 +66,6 @@ def refresh_spotify_token(session_id):
         token_type,
         expires_in,
         refresh_token,
-        refresh_token2,
     )
 
 def execute_spotify_api_request(session_id, endpoint, post_=False, put_=False, get_ = True):
@@ -81,10 +77,10 @@ def execute_spotify_api_request(session_id, endpoint, post_=False, put_=False, g
 
     if post_:
        response = post(BASE_URL + endpoint, headers = header)
-       return response
+       return response.json()
     if put_:
         response = put(BASE_URL + endpoint, headers = header)
-        return response
+        return response.json()
     if get_:
         response = get(BASE_URL + endpoint, {}, headers = header)
         try:
