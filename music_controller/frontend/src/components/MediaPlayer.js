@@ -76,10 +76,21 @@ export default function MediaPlayer(props){
                                 }}>
                                     {props.song.is_playing ? <PauseIcon/> : <PlayArrowIcon/> }
                                 </IconButton>
-                                <IconButton>
+                                <IconButton onClick = {
+                                    () => {
+                                        const requestOptions = {
+                                            method : "POST",
+                                            headers : {"Content-Type" : "application/json"}
+                                        }
+                                        fetch("/spotify/skip-song", requestOptions)
+                                    }
+                                }>
                                     <SkipNextIcon/>
                                 </IconButton>
                             </div>
+                        </Typography>
+                        <Typography variant = 'subtitle2' component = 'div'>
+                            {props.song.votes} / {props.song.votes_required} 
                         </Typography>
                         <LinearProgress variant = "determinate" value = {(props.song.time/props.song.duration) * 100}>
 

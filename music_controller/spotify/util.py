@@ -68,22 +68,22 @@ def refresh_spotify_token(session_id):
         refresh_token,
     )
 
-def execute_spotify_api_request(session_id, endpoint, post_=False, put_=False, get_ = True):
+def execute_spotify_api_request(session_id, endpoint, post_=False, put_=False):
     tokens = get_user_token(session_id)
-    if tokens == None:
-        return {'Error' : 'No Tokens'}
-    header = {'Content-Type' : 'application/json', 'Authorization' : "Bearer " + tokens.access_token}
-    response = None
+    headers = {'Content-Type': 'application/json',
+               'Authorization': "Bearer " + tokens.access_token}
 
     if post_:
-       response = post(BASE_URL + endpoint, headers = header)
-       return response.json()
+        post(BASE_URL + endpoint, headers=headers)
     if put_:
-        response = put(BASE_URL + endpoint, headers = header)
+        put(BASE_URL + endpoint, headers=headers)
+
+    response = get(BASE_URL + endpoint, {}, headers=headers)
+    try:
         return response.json()
-    if get_:
-        response = get(BASE_URL + endpoint, {}, headers = header)
-        try:
-            return response.json()
-        except:
-            return {'Error':'Issue with request'}
+    except:
+        return {'Error': 'Issue with request'}
+
+
+def spotify_api_skipsong(session_id):
+    execute_spotify_api_request(session_id,"player/next",post_ = True)

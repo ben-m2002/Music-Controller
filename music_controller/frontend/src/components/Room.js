@@ -120,6 +120,7 @@ export default function Room (props){
             <Grid item xs = {12} align = "center">
                 <MediaPlayer song = {song}/>
             </Grid>
+            {isHost ? showButton(setShowSettings) : null}
             <Grid item xs = {12} align = "center">
                 <Button color = "primary" variant = "contained" onClick = {() => {
                     const requestOptions = {
@@ -134,7 +135,6 @@ export default function Room (props){
                     Leave
                 </Button>
             </Grid>
-            {isHost ? showButton(setShowSettings) : null}
         </Grid>
 
         /*
